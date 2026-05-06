@@ -104,6 +104,14 @@ class SuperadminPaymentSettings extends Component
     public $testTapSecretKey;
     public $testTapPublicKey;
 
+    // VietQR properties
+    public $vietqrStatus;
+    public $vietqrApiKey;
+    public $vietqrBankAccount;
+    public $vietqrBankCode;
+    public $vietqrAccountName;
+    public $vietqrWebhookSecret;
+
     public function mount()
     {
         $this->paymentGateway = SuperadminPaymentGateway::first();
@@ -213,6 +221,14 @@ class SuperadminPaymentSettings extends Component
         $this->liveTapPublicKey = $this->paymentGateway->live_tap_public_key ?? null;
         $this->testTapSecretKey = $this->paymentGateway->test_tap_secret_key ?? null;
         $this->testTapPublicKey = $this->paymentGateway->test_tap_public_key ?? null;
+
+        // VietQR credentials
+        $this->vietqrStatus = (bool)($this->paymentGateway->vietqr_status ?? false);
+        $this->vietqrApiKey = $this->paymentGateway->vietqr_api_key ?? null;
+        $this->vietqrBankAccount = $this->paymentGateway->vietqr_bank_account ?? null;
+        $this->vietqrBankCode = $this->paymentGateway->vietqr_bank_code ?? null;
+        $this->vietqrAccountName = $this->paymentGateway->vietqr_account_name ?? null;
+        $this->vietqrWebhookSecret = $this->paymentGateway->vietqr_webhook_secret ?? null;
 
         if ($this->activePaymentSetting === 'stripe') {
             $this->webhookUrl = route('billing.verify-webhook', ['hash' => $hash]);
@@ -896,6 +912,67 @@ class SuperadminPaymentSettings extends Component
         ]);
 
         return 0;
+    }
+
+    public function submitFormVietQR()
+    {
+        $this->validate([
+            'vietqrApiKey' => Rule::requiredIf($this->vietqrStatus == true),
+            'vietqrBankAccount' => Rule::requiredIf($this->vietqrStatus == true),
+            'vietqrBankCode' => Rule::requiredIf($this->vietqrStatus == true),
+            'vietqrAccountName' => Rule::requiredIf($this->vietqrStatus == true),
+        ]);
+
+        $configError = 0;
+
+        // Test VietQR connection
+        if ($this->vietqrStatus) {
+            try {
+                $service = new \App\Services\VietQRService();
+                // Temporarily update credentials for testing
+                $this->paymentGateway->update([
+                    'vietqr_api_key' => $this->vietqrApiKey,
+                    'vietqr_bank_account' => $this->vietqrBankAccount,
+                    'vietqr_bank_code' => $this->vietqrBankCode,
+                    'vietqr_account_name' => $this->vietqrAccountName,
+                    'vietqr_webhook_secret' => $this->vietqrWebhookSecret,
+                ]);
+
+                $service = new \App\Services\VietQRService();
+                $testResult = $service->testConnection();
+
+                if (!$testResult['success']) {
+                    $configError = 1;
+                    $this->addError('vietqrApiKey', 'Failed to connect to VietQR API: ' . ($testResult['message'] ?? 'Unknown error'));
+                }
+            } catch (\Exception $e) {
+                $configError = 1;
+                $this->addError('vietqrApiKey', 'VietQR connection error: ' . $e->getMessage());
+            }
+        }
+
+        // Save settings if no errors
+        if ($configError == 0) {
+            $this->paymentGateway->update([
+                'vietqr_status' => $this->vietqrStatus,
+                'vietqr_api_key' => $this->vietqrApiKey,
+                'vietqr_bank_account' => $this->vietqrBankAccount,
+                'vietqr_bank_code' => $this->vietqrBankCode,
+                'vietqr_account_name' => $this->vietqrAccountName,
+                'vietqr_webhook_secret' => $this->vietqrWebhookSecret,
+            ]);
+
+            $this->paymentGateway->fresh();
+            $this->dispatch('settingsUpdated');
+            cache()->forget('superadminPaymentGateway');
+
+            $this->alert('success', __('messages.settingsUpdated'), [
+                'toast' => true,
+                'position' => 'top-end',
+                'showCancelButton' => false,
+                'cancelButtonText' => __('app.close')
+            ]);
+        }
     }
 
 }

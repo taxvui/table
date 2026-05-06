@@ -9,6 +9,10 @@
                 <a href="javascript:;" wire:click="setActiveTab('adminPaymentSetting')"
                 @class(["inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300", 'border-transparent' => ($activeTab != 'adminPaymentSetting'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activeTab == 'adminPaymentSetting')])>@lang('menu.adminPaymentSetting')</a>
             </li>
+            <li class="me-2">
+                <a href="javascript:;" wire:click="setActiveTab('vietqr')"
+                @class(["inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300", 'border-transparent' => ($activeTab != 'vietqr'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activeTab == 'vietqr')])>VietQR</a>
+            </li>
         </ul>
     </div>
     <!-- Tab content -->
@@ -17,6 +21,8 @@
             <livewire:settings.superadmin-payment-settings />
         @elseif ($activeTab === 'adminPaymentSetting')
             <livewire:settings.admin-payment-settings />
+        @elseif ($activeTab === 'vietqr')
+            <livewire:settings.restaurant-vietqr-settings />
         @endif
     </div>
 </div>

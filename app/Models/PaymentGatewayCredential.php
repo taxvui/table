@@ -23,6 +23,8 @@ class PaymentGatewayCredential extends BaseModel
         'razorpay_key' => 'encrypted',
         'stripe_secret' => 'encrypted',
         'razorpay_secret' => 'encrypted',
+        'vietqr_api_key' => 'encrypted',
+        'vietqr_webhook_secret' => 'encrypted',
     ];
 
 

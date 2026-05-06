@@ -104,6 +104,15 @@
                     </span>
                 </li>
 
+                <!-- VietQR -->
+                <li wire:click="activeSetting('vietqr')" class="me-2">
+                    <span @class(["inline-flex items-center gap-x-1 cursor-pointer select-none p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activePaymentSetting != 'vietqr'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activePaymentSetting == 'vietqr')])>
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M6 6h12v12H6z"/></svg>
+                        VietQR
+                        <span @class(['flex w-3 h-3 me-3 rounded-full','bg-green-500' => $vietqrStatus, 'bg-red-500' => !$vietqrStatus ])></span>
+                    </span>
+                </li>
+
                 <!-- Offline Payment -->
                 <li wire:click="activeSetting('offline_payment_method')" class="me-2">
                     <span @class(["inline-flex items-center gap-x-2 cursor-pointer select-none p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activePaymentSetting != 'offline_payment_method'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activePaymentSetting == 'offline_payment_method')])>
@@ -1010,6 +1019,92 @@
                             </div>
                         </div>
 
+                    @endif
+
+                    <div>
+                        <x-button>@lang('app.save')</x-button>
+                    </div>
+                </div>
+            </form>
+        @endif
+
+        <!-- VietQR Form -->
+        @if($activePaymentSetting == 'vietqr')
+            <form wire:submit="submitFormVietQR">
+                <div class="grid gap-6">
+
+                    <div class="my-3">
+                        <x-label for="vietqrStatus">
+                            <div class="flex items-center cursor-pointer">
+                                <x-checkbox name="vietqrStatus" id="vietqrStatus" wire:model.live='vietqrStatus'/>
+
+                                <div class="ms-2">
+                                    @lang('modules.settings.enableVietQR') / Enable VietQR
+                                </div>
+                            </div>
+                        </x-label>
+                    </div>
+
+                    @if ($vietqrStatus)
+                        <div>
+                            <x-label for="vietqrApiKey" :value="__('VietQR API Key')" required/>
+                            <x-input id="vietqrApiKey" class="block w-full mt-1" type="password" wire:model='vietqrApiKey' placeholder="Enter your VietQR API Key"/>
+                            <x-input-error for="vietqrApiKey" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="vietqrBankAccount" :value="__('Bank Account Number')" required/>
+                            <x-input id="vietqrBankAccount" class="block w-full mt-1" type="text" wire:model='vietqrBankAccount' placeholder="e.g., 1234567890"/>
+                            <x-input-error for="vietqrBankAccount" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="vietqrBankCode" :value="__('Bank Code')" required/>
+                            <x-select id="vietqrBankCode" class="block w-full mt-1" wire:model='vietqrBankCode'>
+                                <option value="">--Select Bank--</option>
+                                <option value="BIDV">BIDV</option>
+                                <option value="VCB">Vietcombank (VCB)</option>
+                                <option value="VIB">VIB</option>
+                                <option value="MB">MB Bank</option>
+                                <option value="TCB">TechcomBank</option>
+                                <option value="ACB">ACB</option>
+                                <option value="EXB">Exim Bank</option>
+                                <option value="MSB">MSB</option>
+                                <option value="TPB">TPBank</option>
+                                <option value="OJB">OJBank</option>
+                                <option value="SACOMBANK">SACOMBANK</option>
+                                <option value="SHB">SHB</option>
+                                <option value="VPB">VPBank</option>
+                                <option value="AGRIBANK">Agribank</option>
+                                <option value="NABANK">NABANK</option>
+                                <option value="OceanBank">OceanBank</option>
+                            </x-select>
+                            <x-input-error for="vietqrBankCode" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="vietqrAccountName" :value="__('Account Holder Name')" required/>
+                            <x-input id="vietqrAccountName" class="block w-full mt-1" type="text" wire:model='vietqrAccountName' placeholder="Enter account holder name"/>
+                            <x-input-error for="vietqrAccountName" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="vietqrWebhookSecret" :value="__('Webhook Secret Key')"/>
+                            <x-input id="vietqrWebhookSecret" class="block w-full mt-1" type="password" wire:model='vietqrWebhookSecret' placeholder="Enter webhook secret key for verification"/>
+                            <x-input-error for="vietqrWebhookSecret" class="mt-2"/>
+                        </div>
+
+                        <div class="mt-4">
+                            <x-label :value="__('modules.settings.webhookUrl')" class="mb-1"/>
+                            <div class="flex items-center">
+                                <span class="relative px-1 py-1 font-medium transition duration-300 bg-gray-100 rounded cursor-pointer purchase-code dark:text-white group" id="webhook-url-vietqr">
+                                    {{route('vietqr.webhook')}}
+                                </span>
+                                <button id="copy-button-vietqr" type="button" onclick="copyWebhookUrl('webhook-url-vietqr')" class="px-3 py-2 ml-2 text-white bg-gray-800 rounded-lg hover:bg-gray-700">
+                                    @lang('modules.settings.copyWebhookUrl')
+                                </button>
+                            </div>
+                        </div>
                     @endif
 
                     <div>

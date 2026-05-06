@@ -114,4 +114,14 @@ class SuperadminPaymentGateway extends BaseModel
         return ($this->tap_mode == 'sandbox' ? $this->test_tap_public_key : $this->live_tap_public_key);
     }
 
+    public function getVietqrApiKeyAttribute()
+    {
+        return $this->vietqr_api_key;
+    }
+
+    public function getVietqrWebhookSecretAttribute()
+    {
+        return $this->vietqr_webhook_secret;
+    }
+
 }

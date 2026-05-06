@@ -217,7 +217,7 @@
                         </div>
 
                         <!-- Numpad -->
-                        <div class="grid grid-cols-3 gap-2">
+                        <div class="grid grid-cols-3 gap-2 mb-4">
                             @foreach(range(1, 9) as $number)
                             <button wire:click="appendNumber('{{ $number }}')" class="p-4 text-center border rounded-lg hover:bg-gray-50 w-full text-lg sm:text-xl">
                                 <span class="text-xl">{{ $number }}</span>
@@ -235,6 +235,11 @@
                                 </svg>
                             </button>
                         </div>
+
+                        <!-- VietQR Payment Section -->
+                        @if($order)
+                            <livewire:order.vietqr-receipt :order="$order" />
+                        @endif
                     </div>
                 </div>
 
