@@ -75,6 +75,7 @@ use App\Http\Controllers\SuperAdmin\PayFastWebhookController;
 use App\Http\Controllers\SuperAdmin\PaystackWebhookController;
 use App\Http\Controllers\SuperAdmin\RazorpayWebhookController;
 use App\Http\Controllers\SuperAdmin\FlutterwaveWebhookController;
+use App\Http\Controllers\VietQRPaymentController;
 use App\Http\Middleware\EnsureDeliveryExecutiveAuthenticated;
 
 Route::get('/manifest.json', [HomeController::class, 'manifest'])->name('manifest');
@@ -363,6 +364,16 @@ Route::post('/webhook/tap-webhook/{hash}', [TapPaymentController::class, 'webhoo
 Route::post('/webhook/mollie-webhook/{hash}', [MolliePaymentController::class, 'handleGatewayWebhook'])->name('mollie.webhook');
 Route::match(['get', 'post'], '/mollie/success', [MolliePaymentController::class, 'paymentMainSuccess'])->name('mollie.success');
 Route::match(['get', 'post'], '/mollie/failed', [MolliePaymentController::class, 'paymentFailed'])->name('mollie.failed');
+
+// VietQR Payment Routes
+Route::post('/vietqr/generate-qr', [VietQRPaymentController::class, 'generateQRCode'])->name('vietqr.generate-qr');
+Route::get('/vietqr/qr/{qrCodeId}', [VietQRPaymentController::class, 'getQRCode'])->name('vietqr.get-qr');
+Route::get('/vietqr/status/{transactionId}', [VietQRPaymentController::class, 'checkStatus'])->name('vietqr.check-status');
+Route::post('/webhook/vietqr-webhook', [VietQRPaymentController::class, 'webhook'])->name('vietqr.webhook');
+Route::post('/vietqr/test-connection', [VietQRPaymentController::class, 'testConnection'])->name('vietqr.test-connection');
+Route::get('/vietqr/public-info', [VietQRPaymentController::class, 'getPublicInfo'])->name('vietqr.public-info');
+Route::get('/vietqr/payments', [VietQRPaymentController::class, 'listPayments'])->name('vietqr.payments.list');
+Route::get('/vietqr/payments/{id}', [VietQRPaymentController::class, 'getPaymentDetails'])->name('vietqr.payments.details');
 
 Route::get('/receipt/{id}/preview', [ViewPngController::class, 'preview']); // shows the view to capture
 Route::get('/kot/{id}/preview/{kotPlaceid?}', [ViewPngController::class, 'previewKot'])->name('kot.preview'); // shows KOT view to capture

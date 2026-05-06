@@ -25,3 +25,9 @@ Route::prefix('partner/orders')->group(function () {
 });
 
 Route::post('application-integration/partner/auth/validate-domain', [HomeController::class, 'validatePartnerDomain']);
+
+// VietQR Payment Webhooks
+Route::prefix('vietqr')->group(function () {
+    Route::post('/webhook/payment', [\App\Http\Controllers\VietQRWebhookController::class, 'handlePaymentWebhook']);
+    Route::get('/payment-status/{orderId}', [\App\Http\Controllers\VietQRWebhookController::class, 'getPaymentStatus']);
+});
